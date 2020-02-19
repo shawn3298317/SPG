@@ -18,11 +18,12 @@ from models import *
 from torch.autograd import Variable
 from utils import AverageMeter
 from utils import Metrics
-from utils.LoadData import data_loader, data_loader2
+#from utils.LoadData import data_loader, data_loader2
+from utils.LoadDataKitti import data_loader
 from utils.Restore import restore
 
 ROOT_DIR = '/'.join(os.getcwd().split('/')[:-1])
-print 'Project Root Dir:',ROOT_DIR
+print('Project Root Dir:',ROOT_DIR)
 
 IMG_DIR=os.path.join(ROOT_DIR,'data','ILSVRC','Data','CLS-LOC','train')
 SNAPSHOT_DIR=os.path.join(ROOT_DIR,'snapshot_bins')
@@ -126,7 +127,9 @@ def train(args):
 
         steps_per_epoch = len(train_loader)
         for idx, dat in enumerate(train_loader):
-            img_path , img, label = dat
+            #img_path , img, label = dat
+            img, label = dat
+            label = torch.FloatTensor([t["label"] for t in label])[:, None]
             global_counter += 1
             img, label = img.cuda(), label.cuda()
             img_var, label_var = Variable(img), Variable(label)
@@ -187,8 +190,8 @@ def train(args):
 
 if __name__ == '__main__':
     args = get_arguments()
-    print 'Running parameters:\n'
-    print json.dumps(vars(args), indent=4, separators=(',', ':'))
+    print('Running parameters:\n')
+    print(json.dumps(vars(args), indent=4, separators=(',', ':')))
     if not os.path.exists(args.snapshot_dir):
         os.mkdir(args.snapshot_dir)
     train(args)

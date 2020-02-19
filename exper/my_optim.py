@@ -10,7 +10,7 @@ def get_finetune_optimizer(args, model):
     last_bias_list =[]
     for name,value in model.named_parameters():
         if 'cls' in name:
-            print name
+            print(name)
             if 'weight' in name:
                 last_weight_list.append(value)
             elif 'bias' in name:
@@ -75,7 +75,7 @@ def reduce_lr(args, optimizer, epoch, factor=0.1):
     if change_points is not None and epoch in change_points:
         for g in optimizer.param_groups:
             g['lr'] = g['lr']*factor
-            print epoch, g['lr']
+            print(epoch, g['lr'])
         return True
 
 def adjust_lr(args, optimizer, epoch):

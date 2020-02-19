@@ -29,7 +29,7 @@ def restore(args, model, optimizer, istrain=True, including_opt=False):
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(snapshot, checkpoint['epoch']))
         except KeyError:
-            print "KeyError"
+            print("KeyError")
             if args.arch=='vgg_v5_7' or args.arch=='vgg_v7' or args.arch=='vgg_v10':
                 _model_load_v6(model, checkpoint)
             # elif args.arch=='vgg_v2':
@@ -37,7 +37,7 @@ def restore(args, model, optimizer, istrain=True, including_opt=False):
             else:
                 _model_load(model, checkpoint)
         except KeyError:
-            print "Loading pre-trained values failed."
+            print("Loading pre-trained values failed.")
             raise
         print("=> loaded checkpoint '{}'".format(snapshot))
     else:
@@ -54,8 +54,8 @@ def _model_load(model, pretrained_dict):
     # print pretrained_dict.keys()
     # print model.state_dict().keys()
     pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in model_dict.keys()}
-    print "Weights cannot be loaded:"
-    print [k for k in model_dict.keys() if k not in pretrained_dict.keys()]
+    print("Weights cannot be loaded:")
+    print([k for k in model_dict.keys() if k not in pretrained_dict.keys()])
 
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
@@ -74,8 +74,8 @@ def _model_load_v6(model, pretrained_dict):
     # feature_erase_pred_b = {'module.fc5_seg.%d.bias'%(i):'module.features.%d.bias'%(i+24) for i in range(0,5,2)}
 
     common_pred = {k: v for k, v in pretrained_dict.items() if k in model_dict.keys()}
-    print "Weights cannot be loaded:"
-    print [k for k in model_dict.keys() if k not in common_pred.keys()+ feature2_pred_w.keys() + feature2_pred_b.keys()]
+    print("Weights cannot be loaded:")
+    print([k for k in model_dict.keys() if k not in common_pred.keys()+ feature2_pred_w.keys() + feature2_pred_b.keys()])
 
     def update_coord_dict(d):
         for k in d.keys():
@@ -104,9 +104,9 @@ def _model_load_v2(model, pretrained_dict):
     fc5_seg_b = {'module.fc5_seg.%d.bias'%(i):'module.features.%d.bias'%(i+24) for i in range(0,5,2)}
 
     common_pred = {k: v for k, v in pretrained_dict.items() if k in model_dict.keys()}
-    print "Weights cannot be loaded:"
-    print [k for k in model_dict.keys() if k not in common_pred.keys()+fc5_cls_w.keys()+
-           fc5_cls_b.keys() + fc5_seg_w.keys() + fc5_seg_b.keys()]
+    print("Weights cannot be loaded:")
+    print([k for k in model_dict.keys() if k not in common_pred.keys()+fc5_cls_w.keys()+
+           fc5_cls_b.keys() + fc5_seg_w.keys() + fc5_seg_b.keys()])
 
     def update_coord_dict(d):
         for k in d.keys():
