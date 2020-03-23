@@ -90,7 +90,7 @@ class Inception3(nn.Module):
         self.Mixed_6d = InceptionC(768, channels_7x7=160)
         self.Mixed_6e = InceptionC(768, channels_7x7=192)
 
-        self.num_classes = args.num_classes
+        self.num_classes = args.num_classes if args is not None else num_classes
 
         #Added
         self.fc6 = nn.Sequential(
@@ -256,8 +256,8 @@ class Inception3(nn.Module):
 
     def get_loss(self, logits, gt_labels):
         logits_1, side3, side4, out_seg, atten_map = logits
-
-        loss_cls = self.loss_cross_entropy(logits_1, gt_labels.long())
+        labels_idx = torch.squeeze(gt_labels.long(), dim=-1)
+        loss_cls = self.loss_cross_entropy(logits_1, labels_idx)
 
         # atten_map = logits[-1]
         mask = torch.zeros((logits_1.size()[0], 224, 224)).fill_(255).cuda()
@@ -276,7 +276,7 @@ class Inception3(nn.Module):
         loss_back = self.loss_saliency(self.loss_func, self.interp(out_seg).squeeze(dim=1), back_mask)
 
         loss_val = loss_cls + loss_side3 + loss_side4 + loss_back
-        return [loss_val, ]
+        return [loss_val, (loss_cls, loss_side3, loss_side4, loss_back)]
 
     def loss_saliency(self, loss_func, logtis, labels):
         positions = labels.view(-1, 1) < 255.0

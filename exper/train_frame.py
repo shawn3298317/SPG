@@ -3,6 +3,7 @@ sys.path.append('../')
 
 import torch
 import torch.nn as nn
+import numpy as np
 import argparse
 import os
 import time
@@ -143,11 +144,12 @@ def train(args):
 
             if not args.onehot == 'True':
                 logits1 = torch.squeeze(logits[0])
+                print("Logits1:", logits1, label.long())
                 prec1_1, prec5_1 = Metrics.accuracy(logits1.data, label.long(), topk=(1,5))
                 top1.update(prec1_1[0], img.size()[0])
                 top5.update(prec5_1[0], img.size()[0])
-
-            losses.update(loss_val.data[0], img.size()[0])
+            #print("DEbug, ", loss_val.data)
+            losses.update(loss_val.data, img.size()[0])
             batch_time.update(time.time() - end)
 
             end = time.time()
@@ -159,9 +161,9 @@ def train(args):
             if global_counter % args.disp_interval == 0:
                 # Calculate ETA
                 eta_seconds = ((total_epoch - current_epoch)*steps_per_epoch + (steps_per_epoch - idx))*batch_time.avg
-                eta_str = "{:0>8}".format(datetime.timedelta(seconds=int(eta_seconds)))
+                eta_str = "{}".format(datetime.timedelta(seconds=int(eta_seconds)))
                 eta_seconds_epoch = steps_per_epoch*batch_time.avg
-                eta_str_epoch = "{:0>8}".format(datetime.timedelta(seconds=int(eta_seconds_epoch)))
+                eta_str_epoch = "{}".format(datetime.timedelta(seconds=int(eta_seconds_epoch)))
                 print('Epoch: [{0}][{1}/{2}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                       'ETA {eta_str}({eta_str_epoch})\t'

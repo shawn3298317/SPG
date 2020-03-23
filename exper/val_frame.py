@@ -23,11 +23,12 @@ import torchvision
 from utils import AverageMeter
 from utils import Metrics
 from utils.save_atten import SAVE_ATTEN
-from utils.LoadData import data_loader2, data_loader
+#from utils.LoadData import data_loader2, data_loader
+from utils.LoadDataKitti import data_loader
 from utils.Restore import restore
 
 ROOT_DIR = '/'.join(os.getcwd().split('/')[:-1])
-print 'Project Root Dir:',ROOT_DIR
+print('Project Root Dir:',ROOT_DIR)
 
 IMG_DIR=os.path.join(ROOT_DIR,'data','ILSVRC','Data','CLS-LOC','train')
 SNAPSHOT_DIR=os.path.join(ROOT_DIR,'snapshot_bins')
@@ -106,37 +107,45 @@ def val(args, model=None, current_epoch=0):
     prob = None
     gt = None
     for idx, dat  in tqdm(enumerate(val_loader)):
-        img_path, img, label_in = dat
-        global_counter += 1
-        if args.tencrop == 'True':
-            bs, ncrops, c, h, w = img.size()
-            img = img.view(-1, c, h, w)
-            label_input = label_in.repeat(10, 1)
-            label = label_input.view(-1)
-        else:
-            label = label_in
+        #img_path, img, label_in = dat
+        #img, label = dat
+        #label_in = torch.FloatTensor([t["label"] for t in label])[:, None]
+        #global_counter += 1
+        #if args.tencrop == 'True':
+        #    bs, ncrops, c, h, w = img.size()
+        #    img = img.view(-1, c, h, w)
+        #    label_input = label_in.repeat(10, 1)
+        #    label = label_input.view(-1)
+        #else:
+        #    label = label_in
 
+        #img, label = img.cuda(), label.cuda()
+        #img_var, label_var = Variable(img), Variable(label)
+
+        img, label = dat
+        label = torch.FloatTensor([t["label"] for t in label])[:, None]
+        global_counter += 1
         img, label = img.cuda(), label.cuda()
         img_var, label_var = Variable(img), Variable(label)
-
         logits = model(img_var, label_var)
 
         logits0 = logits[0]
         logits0 = F.softmax(logits0, dim=1)
+        print("Assert", logits0.size(), label_var.size())
         if args.tencrop == 'True':
             logits0 = logits0.view(bs, ncrops, -1).mean(1)
 
 
         # Calculate classification results
-        if args.onehot=='True':
-            val_mAP, prob, gt = cal_mAP(logits0, label_var, prob, gt)
-            # print val_mAP
+        #if args.onehot=='True':
+        #    val_mAP, prob, gt = cal_mAP(logits0, label_var, prob, gt)
+        #    # print val_mAP
 
-        else:
-            prec1_1, prec5_1 = Metrics.accuracy(logits0.cpu().data, label_in.long(), topk=(1,5))
-            # prec3_1, prec5_1 = Metrics.accuracy(logits[1].data, label.long(), topk=(1,5))
-            top1.update(prec1_1[0], img.size()[0])
-            top5.update(prec5_1[0], img.size()[0])
+        #else:
+        #    prec1_1, prec5_1 = Metrics.accuracy(logits0.cpu().data, label_in.long(), topk=(1,5))
+        #    # prec3_1, prec5_1 = Metrics.accuracy(logits[1].data, label.long(), topk=(1,5))
+        #    top1.update(prec1_1[0], img.size()[0])
+        #    top5.update(prec5_1[0], img.size()[0])
 
         # model.module.save_erased_img(img_path)
         last_featmaps = model.module.get_localization_maps()
@@ -163,8 +172,8 @@ def val(args, model=None, current_epoch=0):
 
 
     if args.onehot=='True':
-        print val_mAP
-        print 'AVG:', np.mean(val_mAP)
+        print(val_mAP)
+        print('AVG:', np.mean(val_mAP))
 
     else:
         print('Top1:', top1.avg, 'Top5:',top5.avg)
@@ -196,8 +205,8 @@ def cal_mAP(logits0, label_var, prob, gt):
 if __name__ == '__main__':
     args = get_arguments()
     import json
-    print 'Running parameters:\n'
-    print json.dumps(vars(args), indent=4, separators=(',', ':'))
+    print('Running parameters:\n')
+    print(json.dumps(vars(args), indent=4, separators=(',', ':')))
     if not os.path.exists(args.snapshot_dir):
         os.mkdir(args.snapshot_dir)
     val(args)

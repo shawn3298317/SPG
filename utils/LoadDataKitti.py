@@ -8,6 +8,7 @@ import torchvision.transforms as transforms
 
 import cv2
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
 import matplotlib.image as mpimg
 
@@ -18,13 +19,41 @@ def collate_fn(seq_list):
     imgT = torch.stack([i for i in img])
     return (imgT, targets)
 
+def get_iou(bb1, bb2):
+
+    # determine the coordinates of the intersection rectangle
+    x_left = max(bb1['x1'], bb2['x1'])
+    y_top = max(bb1['y1'], bb2['y1'])
+    x_right = min(bb1['x2'], bb2['x2'])
+    y_bottom = min(bb1['y2'], bb2['y2'])
+
+    if x_right < x_left or y_bottom < y_top:
+        return 0.0
+
+    # The intersection of two axis-aligned bounding boxes is always an
+    # axis-aligned bounding box
+    intersection_area = (x_right - x_left) * (y_bottom - y_top)
+
+    # compute the area of both AABBs
+    bb1_area = (bb1['x2'] - bb1['x1']) * (bb1['y2'] - bb1['y1'])
+    bb2_area = (bb2['x2'] - bb2['x1']) * (bb2['y2'] - bb2['y1'])
+
+    if float(bb2_area) == 0.0:
+        return 0.0
+    return float(intersection_area)/float(bb2_area)
+
+def inception_normalize(original_x):
+    new_x = (0.299*original_x + 0.485) / 0.5 - 1
+    return new_x
+
 class KittiDataset(Dataset):
     def __init__(self, image_class_info):
         # TODO: maybe put the whole preprocess thing here?
         self.img_class_info = image_class_info
-        self.transform = transforms.Compose([transforms.ToTensor(),
-                                             transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                                                  std=[0.229, 0.224, 0.225])])
+        #self.transform = transforms.Compose([transforms.ToTensor()])
+                                             #transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                             #                     std=[0.229, 0.224, 0.225])])
+        self.transform = transforms.Compose([transforms.ToTensor()])
 
 
     def __getitem__(self, index):

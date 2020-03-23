@@ -63,13 +63,13 @@ class SAVE_ATTEN(object):
             atten = atten_batch[idx]
             atten = atten.cpu().data.numpy()
             label = label_batch[idx]
-            label = int(label) 
+            label = int(label)
             self._save_masked_img(path_batch[idx], atten,label)
 
     def _get_idx2cate_dict(self, datasetname=None):
         if datasetname not in idx2catename.keys():
-            print 'The given %s dataset category names are not available. The supported are: %s'\
-                  %(str(datasetname),','.join(idx2catename.keys()))
+            print('The given %s dataset category names are not available. The supported are: %s'\
+                  %(str(datasetname),','.join(idx2catename.keys())))
             return None
         else:
             return {idx:cate_name for idx, cate_name in enumerate(idx2catename[datasetname])}
@@ -233,7 +233,7 @@ class SAVE_ATTEN(object):
     def read_img(self, img_path, size=(224,224)):
         img = cv2.imread(img_path)
         if img is None:
-            print "Image does not exist. %s" %(img_path)
+            print("Image does not exist. %s" %(img_path))
             exit(0)
 
         if size == (0,0):

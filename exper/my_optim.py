@@ -43,7 +43,7 @@ def reduce_lr_poly(args, optimizer, global_iter, max_iter):
         g['lr'] = lr_poly(base_lr=base_lr, iter=global_iter, max_iter=max_iter, power=0.9)
 
 def get_optimizer(args, model):
-    lr = args.lr
+    lr = args.lr if args is not None else 0.001
     # opt = optim.SGD(params=model.parameters(), lr=lr, momentum=0.9, weight_decay=0.0001)
     opt = optim.SGD(params=[para for name, para in model.named_parameters() if 'features' not in name], lr=lr, momentum=0.9, weight_decay=0.0001)
     # lambda1 = lambda epoch: 0.1 if epoch in [85, 125, 165] else 1.0
@@ -66,10 +66,13 @@ def reduce_lr(args, optimizer, epoch, factor=0.1):
     # else:
     #     change_points = None
 
-    values = args.decay_points.strip().split(',')
-    try:
+    if args.decay_points == "none":
+        values = None
+    else:
+        values = args.decay_points.strip().split(',')
+    if values is not None:
         change_points = map(lambda x: int(x.strip()), values)
-    except ValueError:
+    else:
         change_points = None
 
     if change_points is not None and epoch in change_points:
