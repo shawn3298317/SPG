@@ -7,13 +7,10 @@ cd ../exper/
 
 ROOT_DIR=/home/xiaolin/eccv18
 
-CUDA_VISIBLE_DEVICES=1 python val_frame.py --arch=inception3_spg \
+CUDA_VISIBLE_DEVICES=0,1 python val_frame.py \
+	--arch=inception3_spg \
 	--batch_size=1 \
 	--img_dir=${ROOT_DIR}/data/ILSVRC/Data/CLS-LOC/val \
-	--train_list=${ROOT_DIR}/data/ILSVRC/list/train_list.txt \
-	--test_list=${ROOT_DIR}/data/ILSVRC/list/val_list.txt \
-	--num_gpu=1 \
-	--dataset=imagenet \
-	--num_classes=1000 \
-	--snapshot_dir=../snapshots/inception_imagenet_full_spg/
-
+	--num_gpu=1 --dataset=imagenet  \
+	--num_classes=2 \
+	--snapshot_dir=../snapshots/inception_kitti_full_spg/

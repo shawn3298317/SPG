@@ -20,7 +20,8 @@ from torch.autograd import Variable
 from utils import AverageMeter
 from utils import Metrics
 #from utils.LoadData import data_loader, data_loader2
-from utils.LoadDataKitti import data_loader
+from utils.LoadDataKitti import data_loader_kitti
+from utils.LoadDataAiSky import data_loader_aisky
 from utils.Restore import restore
 
 ROOT_DIR = '/'.join(os.getcwd().split('/')[:-1])
@@ -99,7 +100,14 @@ def train(args):
 
     model, optimizer= get_model(args)
     model.train()
-    train_loader, _ = data_loader(args)
+
+    if args.dataset == "Kitti"
+        loader = data_loader_kitti
+    elif args.dataset == "AiSky"
+        loader = data_loader_aisky
+    else:
+        loader = data_loader_kitti
+    train_loader, _ = loader(args)
 
     with open(os.path.join(args.snapshot_dir, 'train_record.csv'), 'a') as fw:
         config = json.dumps(vars(args), indent=4, separators=(',', ':'))
